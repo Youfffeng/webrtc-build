@@ -2,6 +2,11 @@ name: WebRTC Unit Tests
 
 on:
   workflow_dispatch:
+    inputs:
+      commitHash:
+        description: 'webrtc-sdk commit hash'
+        default: ''
+        required: true
   pull_request:
     paths-ignore:
       - '**.md'
@@ -9,6 +14,8 @@ on:
       - 'NOTICE'
       - '.gitignore'
   push:
+    branches:
+      - main
     paths-ignore:
       - '**.md'
       - 'LICENSE'
@@ -38,4 +45,11 @@ jobs:
       - name: Install dependencies
         run: sudo ./scripts/apt_install_x86_64.sh
       - name: Build and run unittests
-        run: python3 run.py build ubuntu-24.04_x86_64 --test
+        env:
+          COMMIT_HASH: ${{ github.event.inputs.commitHash }}
+        run: |
+          if [ -n "$COMMIT_HASH" ]; then
+            python3 run.py build ubuntu-24.04_x86_64 --test --commit "$COMMIT_HASH"
+          else
+            python3 run.py build ubuntu-24.04_x86_64 --test
+          fi
