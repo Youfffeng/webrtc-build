@@ -42,7 +42,6 @@ end_group() {
 }
 
 COMMON_ARGS="
-      enable_dsyms = $DEBUG
       enable_libaom = true
       enable_stripping = true
       ios_enable_code_signing = false
@@ -59,17 +58,13 @@ COMMON_ARGS="
       use_rtti = true"
 
 PLATFORMS=(
-  "iOS-arm64-device:target_os=\"ios\" target_environment=\"device\" target_cpu=\"arm64\" ios_deployment_target=\"13.0\""
-  "iOS-arm64-simulator:target_os=\"ios\" target_environment=\"simulator\" target_cpu=\"arm64\" ios_deployment_target=\"13.0\""
-  "iOS-x64-simulator:target_os=\"ios\" target_environment=\"simulator\" target_cpu=\"x64\" ios_deployment_target=\"13.0\""
-  "macOS-arm64:target_os=\"mac\" target_cpu=\"arm64\" mac_deployment_target=\"10.15\""
-  "macOS-x64:target_os=\"mac\" target_cpu=\"x64\" mac_deployment_target=\"10.15\""
-  "catalyst-arm64:target_os=\"ios\" target_environment=\"catalyst\" target_cpu=\"arm64\" ios_deployment_target=\"14.0\""
-  "catalyst-x64:target_os=\"ios\" target_environment=\"catalyst\" target_cpu=\"x64\" ios_deployment_target=\"14.0\""
-  "tvOS-arm64-device:target_os=\"ios\" target_environment=\"appletv\" target_cpu=\"arm64\" ios_deployment_target=\"17.0\""
-  "tvOS-arm64-simulator:target_os=\"ios\" target_environment=\"appletvsimulator\" target_cpu=\"arm64\" ios_deployment_target=\"17.0\""
-  "xrOS-arm64-device:target_os=\"ios\" target_environment=\"xrdevice\" target_cpu=\"arm64\" ios_deployment_target=\"26.0\""
-  "xrOS-arm64-simulator:target_os=\"ios\" target_environment=\"xrsimulator\" target_cpu=\"arm64\" ios_deployment_target=\"26.0\""
+  "iOS-arm64-device:target_os=\"ios\" target_environment=\"device\" target_cpu=\"arm64\" ios_deployment_target=\"13.0\" enable_dsyms=true symbol_level=1"
+  "iOS-arm64-simulator:target_os=\"ios\" target_environment=\"simulator\" target_cpu=\"arm64\" ios_deployment_target=\"13.0\" enable_dsyms=false symbol_level=0"
+  "iOS-x64-simulator:target_os=\"ios\" target_environment=\"simulator\" target_cpu=\"x64\" ios_deployment_target=\"13.0\" enable_dsyms=false symbol_level=0"
+  "macOS-arm64:target_os=\"mac\" target_cpu=\"arm64\" mac_deployment_target=\"10.15\" enable_dsyms=false symbol_level=0"
+  "macOS-x64:target_os=\"mac\" target_cpu=\"x64\" mac_deployment_target=\"10.15\" enable_dsyms=false symbol_level=0"
+  "catalyst-arm64:target_os=\"ios\" target_environment=\"catalyst\" target_cpu=\"arm64\" ios_deployment_target=\"14.0\" enable_dsyms=false symbol_level=0"
+  "catalyst-x64:target_os=\"ios\" target_environment=\"catalyst\" target_cpu=\"x64\" ios_deployment_target=\"14.0\" enable_dsyms=false symbol_level=0"
 )
 
 cd "$SOURCE_DIR"
@@ -139,10 +134,6 @@ FRAMEWORK_PATHS=(
   "$OUT_DIR/iOS-simulator-lib/$FRAMEWORK_NAME.framework"
   "$OUT_DIR/macOS-lib/$FRAMEWORK_NAME.framework"
   "$OUT_DIR/catalyst-lib/$FRAMEWORK_NAME.framework"
-  "$OUT_DIR/tvOS-arm64-device/$FRAMEWORK_NAME.framework"
-  "$OUT_DIR/tvOS-arm64-simulator/$FRAMEWORK_NAME.framework"
-  "$OUT_DIR/xrOS-arm64-device/$FRAMEWORK_NAME.framework"
-  "$OUT_DIR/xrOS-arm64-simulator/$FRAMEWORK_NAME.framework"
 )
 
 DSYM_PATHS=(
@@ -150,16 +141,12 @@ DSYM_PATHS=(
   "$OUT_DIR/iOS-simulator-lib/$FRAMEWORK_NAME.dSYM"
   "$OUT_DIR/macOS-lib/$FRAMEWORK_NAME.dSYM"
   "$OUT_DIR/catalyst-lib/$FRAMEWORK_NAME.dSYM"
-  "$OUT_DIR/tvOS-arm64-device/$FRAMEWORK_NAME.dSYM"
-  "$OUT_DIR/tvOS-arm64-simulator/$FRAMEWORK_NAME.dSYM"
-  "$OUT_DIR/xrOS-arm64-device/$FRAMEWORK_NAME.dSYM"
-  "$OUT_DIR/xrOS-arm64-simulator/$FRAMEWORK_NAME.dSYM"
 )
 
 for i in "${!FRAMEWORK_PATHS[@]}"; do
   XCFRAMEWORK_ARGS+=(-framework "${FRAMEWORK_PATHS[$i]}")
 
-  if [[ "$DEBUG" == "true" ]] && [[ -d "${DSYM_PATHS[$i]}" ]]; then
+  if [[ -d "${DSYM_PATHS[$i]}" ]]; then
     XCFRAMEWORK_ARGS+=(-debug-symbols "${DSYM_PATHS[$i]}")
   fi
 done
